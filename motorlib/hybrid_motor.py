@@ -100,6 +100,14 @@ class HybridMotor():
     def calcIdealPressure(self, regDepth, dThroat, lastPressure, kn=None):
         """Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
         optionally be passed in to save time on motors where calculating surface area is expensive."""
+        # TODO: Make this work
+        # NOTES (joebowen):
+        # K = specific_heat_of_gas
+        # mass_out_nozzle = prev_pressure * nozzle area * sqrt(K / ((gas_constant / molarMass) * temp)) * ((2 / (K + 1)) ** ((K + 1) / (2 * (K - 1))))
+        # mass_storage_ability_in_chamber = (port_volume + post_combustion_chamber_volume) * gas_density
+        # oxi_mass + fuel_mass = added_mass_in_chamber + mass_out_nozzle
+        # pressure = gas density * gas_constant * temp
+
         density = self.propellant.getProperty('density')
         ballA, ballN, gamma, temp, molarMass = self.propellant.getCombustionProperties(lastPressure)
         if kn is None:
