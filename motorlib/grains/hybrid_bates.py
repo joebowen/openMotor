@@ -24,6 +24,10 @@ class HybridBatesGrain(PerforatedGrain):
     def getCorePerimeter(self, regDist):
         return geometry.circlePerimeter(self.props['coreDiameter'].getValue() + (2 * regDist))
 
+    def getCoreVolumeRegression(self, regDist):
+        coreLength = self.props['length'].getValue()
+        return geometry.circleArea(self.props['coreDiameter'].getValue() + (2 * regDist)) * coreLength
+
     def getFaceArea(self, regDist):
         outer = geometry.circleArea(self.props['diameter'].getValue())
         inner = geometry.circleArea(self.props['coreDiameter'].getValue() + (2 * regDist))
@@ -83,7 +87,7 @@ class HybridBatesGrain(PerforatedGrain):
 
         return avgRegRate
 
-    def getUnusedN2O(self, n2oMassFlow, density, prevAvgTotalMassFlux, idealOxiFuelRatio):
+    def getUsedN2O(self, n2oMassFlow, density, prevAvgTotalMassFlux, idealOxiFuelRatio):
         # NOTE(joebowen): I'm not sure this is a valid assumption for a hybrid motor given that post-combustion
         # chambers can be used to provide more complete burning.  If not all the combustion happens at the grain,
         # is it possible that the localized grain O/F ratio can't be used to determine 'wasted' N2O?
@@ -97,9 +101,7 @@ class HybridBatesGrain(PerforatedGrain):
 
         # TODO: something in here to compare the ideal to the actual ratios and figure out how much oxi is left...
 
-        return 0  # TODO: Just returning 0 until I revisit this
-
-
+        return n2oMassFlow  # TODO: Just returning n2oMassFlow until I revisit this
 
     # These two functions have a lot of code reuse, but it is worth it because making BATES an fmmGrain would make it
     # signficantly way slower

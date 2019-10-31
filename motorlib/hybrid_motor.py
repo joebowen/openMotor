@@ -2,12 +2,15 @@
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .nitrous_oxide import N2OTank
-from .propellant import Propellant
+from .hybrid_fuel import HybridFuel
 from . import geometry
 from . import units
 from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
+
+import math
+
 
 class HybridMotorConfig(PropertyCollection):
     """Contains the settings required for simulation, including environmental conditions and details about
@@ -45,6 +48,8 @@ class HybridMotor():
         self.nozzle = Nozzle()
         self.config = HybridMotorConfig()
 
+        self.massInChamber = 0
+
         if propDict is not None:
             self.applyDict(propDict)
 
@@ -78,7 +83,7 @@ class HybridMotor():
         the result passed out by 'getDict'"""
         self.nozzle.setProperties(dictionary['nozzle'])
         if dictionary['propellant'] is not None:
-            self.propellant = Propellant(dictionary['propellant'])
+            self.propellant = HybridFuel(dictionary['propellant'])
         else:
             self.propellant = None
         self.grains = []
@@ -87,35 +92,39 @@ class HybridMotor():
             self.grains[-1].setProperties(entry['properties'])
         self.config.setProperties(dictionary['config'])
 
-    def calcKN(self, regDepth, dThroat):
-        """Returns the motor's Kn when it has each grain has regressed by its value in regDepth, which should be a list
-        with the same number of elements as there are grains in the motor."""
-        burnoutThres = self.config.getProperty('burnoutWebThres')
-        gWithReg = zip(self.grains, regDepth)
-        perGrain = [gr.getSurfaceAreaAtRegression(reg) * int(gr.isWebLeft(reg, burnoutThres)) for gr, reg in gWithReg]
-        surfArea = sum(perGrain)
+    def calcMassOutNozzle(self, dThroat, lastPressure):
         nozz = self.nozzle.getThroatArea(dThroat)
-        return surfArea / nozz
 
-    def calcIdealPressure(self, regDepth, dThroat, lastPressure, kn=None):
-        """Returns the steady-state pressure of the motor at a given reg. Kn is calculated automatically, but it can
-        optionally be passed in to save time on motors where calculating surface area is expensive."""
-        # TODO: Make this work
-        # NOTES (joebowen):
-        # K = specific_heat_of_gas
-        # mass_out_nozzle = prev_pressure * nozzle area * sqrt(K / ((gas_constant / molarMass) * temp)) * ((2 / (K + 1)) ** ((K + 1) / (2 * (K - 1))))
-        # mass_storage_ability_in_chamber = (port_volume + post_combustion_chamber_volume) * gas_density
-        # oxi_mass + fuel_mass = added_mass_in_chamber + mass_out_nozzle
-        # pressure = gas density * gas_constant * temp
+        temp = self.propellant.getCombustionTemp(lastPressure)
+        gasConstant = self.propellant.getGasConstant(lastPressure)
+        K = self.propellant.getCombustionGamma(lastPressure, temp)
+        molarMass = self.propellant.getMolarMass(lastPressure, temp)
 
-        density = self.propellant.getProperty('density')
-        ballA, ballN, gamma, temp, molarMass = self.propellant.getCombustionProperties(lastPressure)
-        if kn is None:
-            kn = self.calcKN(regDepth, dThroat)
-        num = kn * density * ballA
-        exponent = 1/(1 - ballN)
-        denom = ((gamma / ((8314 / molarMass) * temp)) * ((2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))) ** 0.5
-        return (num / denom) ** exponent
+        massOutNozzle = lastPressure * nozz * math.sqrt(K / ((gasConstant / molarMass) * temp)) * ((2 / (K + 1)) ** ((K + 1) / (2 * (K - 1))))
+
+        return massOutNozzle
+
+    def calcIdealPressure(self, regDepth, dThroat, lastPressure, addedMass):
+        massOutNozzle = self.calcMassOutNozzle(dThroat, lastPressure)
+
+        self.massInChamber += addedMass - massOutNozzle
+
+        gWithReg = zip(self.grains, regDepth)
+        perGrain = [gr.getCoreVolumeRegression(reg) for gr, reg in gWithReg]
+        portVol = sum(perGrain)
+
+        postCombustionVol = self.config.getProperty('postCombustionVol')
+
+        volInChamber = portVol + postCombustionVol
+
+        gasDensity = self.massInChamber / volInChamber
+
+        temp = self.propellant.getCombustionTemp(lastPressure)
+        gasConstant = self.propellant.getGasConstant(lastPressure)
+
+        pressure = gasDensity * gasConstant * temp
+
+        return pressure
 
     def calcIdealThrustCoeff(self, chamberPres, dThroat, exitPres=None):
         """Calculates C_f, the ideal thrust coefficient for the motor's nozzle and propellant, and the given chamber
@@ -123,7 +132,8 @@ class HybridMotor():
         if chamberPres == 0:
             return 0
 
-        _, _, gamma, _, _ = self.propellant.getCombustionProperties(chamberPres)
+        temp = self.propellant.getCombustionTemp(chamberPres)
+        gamma = self.propellant.getCombustionGamma(temp, chamberPres)
         if exitPres is None:
             exitPres = self.nozzle.getExitPressure(gamma, chamberPres)
         ambPres = self.config.getProperty("ambPressure")
@@ -205,15 +215,14 @@ class HybridMotor():
 
         # At t = 0, the motor has ignited
         simRes.channels['time'].addData(0)
-        simRes.channels['kn'].addData(self.calcKN(perGrainReg, 0))
         igniterPres = self.config.getProperty('igniterPressure')
-        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, igniterPres, None))
+        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, igniterPres, 0))
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])
         simRes.channels['massFlux'].addData([0 for grain in self.grains])
         simRes.channels['unusedN2O'].addData(0)
-        simRes.channels['regression'].addData([0 for grains in self.grains])
+        simRes.channels['regression'].addData([0 for grain in self.grains])
         simRes.channels['web'].addData([grain.getWebLeft(0) for grain in self.grains])
         simRes.channels['exitPressure'].addData(0)
         simRes.channels['dThroat'].addData(0)
@@ -230,6 +239,7 @@ class HybridMotor():
         # Perform timesteps
         while simRes.shouldContinueSim(burnoutThrustThres):
             n2oMassFlow = self.tank.get_mass_flow_per_iteration(simRes.channels['pressure'].getLast())
+            unusedN2OMassFlow = n2oMassFlow
 
             # Calculate regression
             massFlow = 0
@@ -239,24 +249,33 @@ class HybridMotor():
             perGrainWeb = [0 for grain in self.grains]
             for gid, grain in enumerate(self.grains):
                 if grain.getWebLeft(perGrainReg[gid]) > burnoutWebThres:
-                    idealOxiFuelRatio = self.propellant.getIdealOxiFuelRatio()
+                    idealOxiFuelRatio = self.propellant.getProperty('idealOxiFuelRatio')
 
                     prevAvgTotalMassFlux = simRes.channels['massFlux'].getLast()[gid]
+
                     # Find the mass flux through the grain based on the mass flow fed into from grains above it
-                    perGrainMassFlux[gid] = grain.getAvgTotalMassFlux(massFlow, density, n2oMassFlow, prevAvgTotalMassFlux)
-                    # Calculate the non-combusted N2O for the next grain to have available
-                    n2oMassFlow = grain.getUnusedN2O(n2oMassFlow, density, prevAvgTotalMassFlux, idealOxiFuelRatio)
+                    perGrainMassFlux[gid] = grain.getAvgTotalMassFlux(massFlow, density, unusedN2OMassFlow, prevAvgTotalMassFlux)
+
+                    # Calculate the combusted N2O for the next grain to have available
+                    usedN2OMassFlow = grain.getUsedN2O(unusedN2OMassFlow, density, prevAvgTotalMassFlux, idealOxiFuelRatio)
+                    unusedN2OMassFlow -= usedN2OMassFlow
+
                     # Calculate regression at the current pressure
                     reg = grain.getAvgRegRate(prevAvgTotalMassFlux) * dTime
+
                     # Find the mass of the grain after regression
                     perGrainMass[gid] = grain.getVolumeAtRegression(perGrainReg[gid]) * density
+
                     # Add the change in grain mass to the mass flow
-                    massFlow += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / dTime
+                    massFlow += (simRes.channels['mass'].getLast()[gid] - perGrainMass[gid]) / dTime + usedN2OMassFlow
+
                     # Apply the regression
                     perGrainReg[gid] += reg
                     perGrainWeb[gid] = grain.getWebLeft(perGrainReg[gid])
+
                 perGrainMassFlow[gid] = massFlow
-            simRes.channels['unusedN2O'].addData(n2oMassFlow)
+
+            simRes.channels['unusedN2O'].addData(unusedN2OMassFlow)
             simRes.channels['regression'].addData(perGrainReg[:])
             simRes.channels['web'].addData(perGrainWeb)
 
@@ -264,18 +283,15 @@ class HybridMotor():
             simRes.channels['massFlow'].addData(perGrainMassFlow)
             simRes.channels['massFlux'].addData(perGrainMassFlux)
 
-            # Calculate KN
-            dThroat = simRes.channels['dThroat'].getLast()
-            simRes.channels['kn'].addData(self.calcKN(perGrainReg, dThroat))
-
             # Calculate Pressure
+            dThroat = simRes.channels['dThroat'].getLast()
             lastPressure = simRes.channels['pressure'].getLast()
-            lastKn = simRes.channels['kn'].getLast()
-            pressure = self.calcIdealPressure(perGrainReg, dThroat, lastPressure, lastKn)
+            pressure = self.calcIdealPressure(perGrainReg, dThroat, lastPressure, n2oMassFlow)
             simRes.channels['pressure'].addData(pressure)
 
             # Calculate Exit Pressure
-            _, _, gamma, _, _ = self.propellant.getCombustionProperties(pressure)
+            temp = self.propellant.getCombustionTemp(pressure)
+            gamma = self.propellant.getCombustionGamma(temp, pressure)
             exitPressure = self.nozzle.getExitPressure(gamma, pressure)
             simRes.channels['exitPressure'].addData(exitPressure)
 

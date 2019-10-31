@@ -3,6 +3,9 @@
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
 
+from thermo.mixture import Mixture
+
+
 class HybridFuelTab(PropertyCollection):
     """Contains the combustion properties of a hybrid fuel."""
     def __init__(self, tabDict=None):
@@ -30,32 +33,30 @@ class HybridFuel(PropertyCollection):
 
     def getCStar(self, pressure):
         """Returns the propellant's characteristic velocity."""
-        _, _, gamma, temp, molarMass = self.getCombustionProperties(pressure)
+        temp = self.getCombustionTemp(pressure)
+        gamma = self.getCombustionGamma(pressure, temp)
+        molarMass = self.getMolarMass(pressure, temp)
+
         gasConst = 8314
         num = (gamma * gasConst / molarMass * temp)**0.5
         denom = gamma * ((2 / (gamma + 1))**((gamma + 1) / (gamma - 1)))**0.5
         return num / denom
 
-    def getBurnRate(self, pressure):
-        """Returns the propellant's burn rate for the given pressure"""
-        ballA, ballN, _, _, _ = self.getCombustionProperties(pressure)
-        return ballA * (pressure ** ballN)
+    def getMolarMass(self, pressure, temp):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=temp, P=pressure)
+        return mixture.MW
 
-    def getCombustionProperties(self, pressure):
-        """Returns the propellant's a, n, gamma, combustion temp and molar mass for a given pressure"""
-        closest = {}
-        closestPressure = 1e100
-        for tab in self.getProperty('tabs'):
-            if tab['minPressure'] < pressure < tab['maxPressure']:
-                return tab['a'], tab['n'], tab['k'], tab['t'], tab['m']
-            if abs(pressure - tab['minPressure']) < closestPressure:
-                closest = tab
-                closestPressure = abs(pressure - tab['minPressure'])
-            if abs(pressure - tab['maxPressure']) < closestPressure:
-                closest = tab
-                closestPressure = abs(pressure - tab['maxPressure'])
+    def getCombustionTemp(self, pressure):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=3000, P=pressure)
+        return mixture.T
 
-        return closest['a'], closest['n'], closest['k'], closest['t'], closest['m']
+    def getGasConstant(self, pressure):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=3000, P=pressure)
+        return mixture.R_specific
+
+    def getCombustionGamma(self, pressure, temp):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=temp, P=pressure)
+        return mixture.Cpg / mixture.Cvg
 
     def getMinimumValidPressure(self):
         """Returns the lowest pressure value with associated combustion properties"""

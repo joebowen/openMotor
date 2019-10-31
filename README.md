@@ -1,6 +1,8 @@
 openMotor
 ==========
 
+NOTE: This is still a work in progress.  I'm attempting to add in the ability to model hybrid motors.
+
 Overview
 --------
 openMotor is an open-source internal ballistics simulator for rocket motor experimenters. The software produces estimates of a rocket motor's chamber pressure and thrust based on input such as propellant properties and grain geometry. It uses the Fast Marching Method to determine how a propellant grain regresses, which allows the use of arbitrary core geometries. 
