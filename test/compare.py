@@ -4,7 +4,7 @@ import matplotlib
 import yaml
 import warnings
 
-import motorlib.motor
+import motorlib.apcp_motor
 from uilib.fileIO import loadFile, fileTypes
 
 separator = '-' * 65
@@ -32,7 +32,7 @@ def runSim(path):
     print('Loading motor from ' + path)
     res = loadFile(path, fileTypes.MOTOR)
     if res is not None:
-        motor = motorlib.motor.Motor(res)
+        motor = motorlib.hybrid_motor.HybridMotor(res)
         print('Simulating burn...')
         return motor.runSimulation()
     else:

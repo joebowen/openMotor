@@ -1,13 +1,13 @@
 import unittest
 
-import motorlib.motor
+import motorlib.hybrid_motor
 import motorlib.grains
-import motorlib.propellant
+import motorlib.hybrid_propellant
 class TestMotorMethods(unittest.TestCase):
 
     def test_calcKN(self):
-        tm = motorlib.motor.Motor()
-        tc = motorlib.motor.MotorConfig()
+        tm = motorlib.hybrid_motor.HybridMotor()
+        tc = motorlib.hybrid_motor.HybridMotorConfig()
 
         bg = motorlib.grains.BatesGrain()
         bg.setProperties({'diameter':0.083058, 
@@ -26,8 +26,8 @@ class TestMotorMethods(unittest.TestCase):
 
 
     def test_calcPressure(self):
-        tm = motorlib.motor.Motor()
-        tc = motorlib.motor.MotorConfig()
+        tm = motorlib.hybrid_motor.HybridMotor()
+        tc = motorlib.hybrid_motor.HybridMotorConfig()
 
         bg = motorlib.grains.BatesGrain()
         bg.setProperties({'diameter':0.083058, 
@@ -40,7 +40,7 @@ class TestMotorMethods(unittest.TestCase):
         bg.simulationSetup(tc)
 
         tm.nozzle.setProperties({'throat': 0.01428})
-        tm.propellant = motorlib.propellant.Propellant()
+        tm.propellant = motorlib.hybrid_propellant.HybridPropellant()
         tm.propellant.setProperties({
                     'name': 'KNSU',
                     'density': 1890, 
@@ -75,7 +75,7 @@ class TestNozzleMethods(unittest.TestCase):
     def test_expansionRatio(self):
         self.assertAlmostEqual(motorlib.nozzle.eRatioFromPRatio(1.15, 0.0156), 0.10650602)
 
-import motorlib.propellant
+import motorlib.hybrid_propellant
 class TestPropellantMethods(unittest.TestCase):
     def test_proper_propellant_ranges(self):
         props = {'name': 'TestProp',
@@ -92,7 +92,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = motorlib.hybrid_propellant.HybridPropellant(props)
         self.assertEqual(len(testProp.getErrors()), 0)
 
     def test_backwards_pressure_ranges(self):
@@ -119,7 +119,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = motorlib.hybrid_propellant.HybridPropellant(props)
         self.assertIn('Tab #1 has reversed pressure limits.', [err.description for err in testProp.getErrors()])
 
     def test_overlapping_pressure_ranges(self):
@@ -146,7 +146,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = motorlib.hybrid_propellant.HybridPropellant(props)
         self.assertIn('Tabs #1 and #2 have overlapping ranges.', [err.description for err in testProp.getErrors()])
 
     def test_get_combustion_properties_in_range(self):
@@ -173,7 +173,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = motorlib.hybrid_propellant.HybridPropellant(props)
         self.assertEqual(testProp.getCombustionProperties(8e5), (1.467e-05, 0.382, 1.25, 3500, 23.67))
         self.assertEqual(testProp.getCombustionProperties(8e6), (1e-05, 0.3, 1.25, 3500, 23.67))
 
@@ -201,7 +201,7 @@ class TestPropellantMethods(unittest.TestCase):
                        }
                    ]
                   }
-        testProp = motorlib.propellant.Propellant(props)
+        testProp = motorlib.hybrid_propellant.HybridPropellant(props)
         self.assertEqual(testProp.getCombustionProperties(6.9e5), (1.467e-05, 0.382, 1.25, 3500, 23.67))
         self.assertEqual(testProp.getCombustionProperties(8e10), (1e-05, 0.3, 1.25, 3500, 23.67))
 

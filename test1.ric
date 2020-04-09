@@ -1,0 +1,46 @@
+data:
+  config:
+    ambPressure: 101324.99674500001
+    burnoutThrustThres: 0.1
+    burnoutWebThres: 0.00025400050800101603
+    igniterPressure: 1034250.0000000001
+    injectorDiameter: 1.0
+    injectorK2Coefficient: 0.0
+    mapDim: 750
+    maxMassFlux: 1406.4697609001405
+    maxPressure: 10342500.000000002
+    minPortThroat: 2.0
+    numOfInjectors: 1.0
+    postCombustionVol: 0.2
+    tankPressure: 400.0
+    tankUllage: 10.0
+    tankVolume: 1.0
+    timestep: 0.03
+  grains:
+  - properties:
+      coreDiameter: 0.019050038100076203
+      diameter: 0.044450088900177806
+      inhibitedEnds: Both
+      length: 0.38100076200152405
+    type: Hybrid BATES
+  nozzle:
+    convAngle: 60.0
+    divAngle: 15.0
+    efficiency: 0.9
+    erosionCoeff: 0.0
+    exit: 0.012039624079248159
+    slagCoeff: 0.0
+    throat: 0.005308610617221235
+    throatLength: 0.012573025146050293
+  propellant:
+    density: 1071.2120750789568
+    name: ABS Hybrid Fuel
+    tabs:
+    - maxPressure: 6895000.000000001
+      minPressure: 0.0
+type: !!python/object/apply:uilib.fileIO.fileTypes
+- 3
+version: !!python/tuple
+- 0
+- 4
+- 0

@@ -8,10 +8,13 @@ from .cGrain import *
 from .dGrain import *
 from .rodTube import *
 from .custom import *
+from .hybrid_bates import *
 
 # Generate grain geometry name -> constructor lookup table
 grainTypes = {}
-grainClasses = [BatesGrain, EndBurningGrain, Finocyl, MoonBurner, StarGrain, XCore, CGrain, DGrain, RodTubeGrain,
-                CustomGrain]
-for grainType in grainClasses:
+
+apcpGrainClasses = [BatesGrain, EndBurningGrain, Finocyl, MoonBurner, StarGrain, XCore, CGrain, DGrain, RodTubeGrain, CustomGrain]
+hybridGrainClasses = [HybridBatesGrain]
+
+for grainType in hybridGrainClasses:
     grainTypes[grainType.geomName] = grainType

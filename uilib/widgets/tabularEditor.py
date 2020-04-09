@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal
 
-from motorlib.propellant import PropellantTab
+from motorlib.hybrid_propellant import HybridPropellantTab
 
 from ..views.TabularEditor_ui import Ui_TabularEditor
 

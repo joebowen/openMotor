@@ -25,13 +25,13 @@ class PropellantPreviewWidget(QWidget):
             if alert.level == motorlib.simResult.SimAlertLevel.ERROR:
                 return
 
-        burnrateData = [[], []]
-        minPres = int(propellant.getMinimumValidPressure()) + 1 # Add 1 Pa to avoid crashing on burnrate for 0 Pa
-        maxPres = int(propellant.getMaximumValidPressure())
-        for pres in range(minPres, maxPres, 2000):
-            burnrateData[0].append(pres)
-            burnrateData[1].append(propellant.getBurnRate(pres))
-        self.ui.tabBurnRate.showGraph(burnrateData)
+        # burnrateData = [[], []]
+        # minPres = int(propellant.getMinimumValidPressure()) + 1 # Add 1 Pa to avoid crashing on burnrate for 0 Pa
+        # maxPres = int(propellant.getMaximumValidPressure())
+        # for pres in range(minPres, maxPres, 2000):
+        #     burnrateData[0].append(pres)
+        #     burnrateData[1].append(propellant.getBurnRate(pres))
+        # self.ui.tabBurnRate.showGraph(burnrateData)
 
     def cleanup(self):
         self.ui.tabAlerts.clear()

@@ -115,7 +115,8 @@ class SimulationResult():
             'regression': LogChannel('Regression Depth', tuple, 'm'),
             'web': LogChannel('Web', tuple, 'm'),
             'exitPressure': LogChannel('Nozzle Exit Pressure', float, 'Pa'),
-            'dThroat': LogChannel('Change in Throat Diameter', float, 'm')
+            'dThroat': LogChannel('Change in Throat Diameter', float, 'm'),
+            'unusedN2O': LogChannel('Unused N2O', float, 'L')
         }
 
     def addAlert(self, alert):

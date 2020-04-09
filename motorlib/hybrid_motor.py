@@ -2,7 +2,7 @@
 from .grains import grainTypes
 from .nozzle import Nozzle
 from .nitrous_oxide import N2OTank
-from .hybrid_fuel import HybridFuel
+from .hybrid_propellant import HybridPropellant
 from . import geometry
 from . import units
 from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
@@ -21,7 +21,7 @@ class HybridMotorConfig(PropertyCollection):
         self.props['tankVolume'] = FloatProperty('N2O Tank Volume', 'L', 0, 100)
         self.props['tankPressure'] = FloatProperty('N2O Tank Pressure', 'psi', 400, 1200)
         self.props['tankUllage'] = FloatProperty('N2O Tank Ullage Percentage', '%', 0, 100)
-        self.props['numOfInjectors'] = FloatProperty('Number of Injectors', '', 0, 10)
+        self.props['numOfInjectors'] = FloatProperty('Number of Injectors', '', 1, 10)
         self.props['injectorDiameter'] = FloatProperty('Injector Diameter', 'mm', .01, 5)
         self.props['injectorK2Coefficient'] = FloatProperty('Injector K2 Coefficient', '', 0, 4)
         # Limits
@@ -35,6 +35,8 @@ class HybridMotorConfig(PropertyCollection):
         self.props['ambPressure'] = FloatProperty('Ambient Pressure', 'Pa', 0.0001, 102000)
         self.props['igniterPressure'] = FloatProperty('Igniter Pressure', 'Pa', 0, 1e7)
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
+        # Motor Design
+        self.props['postCombustionVol'] = FloatProperty('Post Combustion Volume', 'L', 0, 1)
 
 
 class HybridMotor():
@@ -83,7 +85,7 @@ class HybridMotor():
         the result passed out by 'getDict'"""
         self.nozzle.setProperties(dictionary['nozzle'])
         if dictionary['propellant'] is not None:
-            self.propellant = HybridFuel(dictionary['propellant'])
+            self.propellant = HybridPropellant(dictionary['propellant'])
         else:
             self.propellant = None
         self.grains = []

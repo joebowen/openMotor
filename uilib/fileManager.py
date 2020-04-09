@@ -27,7 +27,7 @@ class FileManager(QObject):
     # Check if current motor is unsaved and start over from default motor. Called when the menu item is triggered.
     def newFile(self):
         if self.unsavedCheck():
-            newMotor = motorlib.motor.Motor()
+            newMotor = motorlib.hybrid_motor.HybridMotor()
             motorConfig = self.app.preferencesManager.preferences.general.getProperties()
             newMotor.config.setProperties(motorConfig) # Copy over user's preferences
             self.startFromMotor(newMotor)
@@ -70,7 +70,7 @@ class FileManager(QObject):
                 try:
                     res = loadFile(path, fileTypes.MOTOR)
                     if res is not None:
-                        motor = motorlib.motor.Motor()
+                        motor = motorlib.hybrid_motor.HybridMotor()
                         motor.applyDict(res)
                         self.startFromMotor(motor, path)
                         return True
@@ -81,7 +81,7 @@ class FileManager(QObject):
 
     # Return the recent end of the motor history
     def getCurrentMotor(self):
-        newMotor = motorlib.motor.Motor()
+        newMotor = motorlib.hybrid_motor.HybridMotor()
         newMotor.applyDict(self.fileHistory[self.currentVersion])
         return newMotor
 

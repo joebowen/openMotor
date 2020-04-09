@@ -7,7 +7,7 @@ from .simResult import SimulationResult, SimAlert, SimAlertLevel, SimAlertType
 from .grains import EndBurningGrain
 from .properties import PropertyCollection, FloatProperty, IntProperty
 
-class MotorConfig(PropertyCollection):
+class APCPMotorConfig(PropertyCollection):
     """Contains the settings required for simulation, including environmental conditions and details about
     how to run the simulation."""
     def __init__(self):
@@ -25,7 +25,7 @@ class MotorConfig(PropertyCollection):
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
 
 
-class Motor():
+class APCPMotor():
     """The motor class stores a number of grains, a nozzle instance, a propellant, and a configuration that it uses
     to run simulations. Simulations return a simRes object that includes any warnings or errors associated with the
     simulation and the data. The propellant field may be None if the motor has no propellant set, and the grains list
@@ -34,7 +34,7 @@ class Motor():
         self.grains = []
         self.propellant = None
         self.nozzle = Nozzle()
-        self.config = MotorConfig()
+        self.config = APCPMotorConfig()
 
         if propDict is not None:
             self.applyDict(propDict)

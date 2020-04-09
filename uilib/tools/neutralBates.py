@@ -19,7 +19,7 @@ class NeutralBatesTool(Tool):
     def applyChanges(self, inp, motor, simulation):
         grainLength = (inp['diameter'] * 1.68) + inp['grainSpace']
         numGrains = inp['length'] // grainLength
-        newMotor = motorlib.motor.Motor()
+        newMotor = motorlib.hybrid_motor.HybridMotor()
         for _ in range(0, int(numGrains)):
             newGrain = motorlib.grains.BatesGrain()
             newGrain.props['diameter'].setValue(inp['diameter'])

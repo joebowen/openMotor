@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QLabel
 
 import motorlib.grain
 import motorlib.nozzle
-import motorlib.motor
+import motorlib.hybrid_motor
 
 from .collectionEditor import CollectionEditor
 from .grainPreviewWidget import GrainPreviewWidget
@@ -58,7 +58,7 @@ class MotorEditor(CollectionEditor):
             self.nozzlePreview.show()
             self.grainPreview.hide()
 
-        if issubclass(self.objType, motorlib.motor.MotorConfig):
+        if issubclass(self.objType, motorlib.hybrid_motor.HybridMotorConfig):
             self.expRatioLabel.hide()
             self.nozzlePreview.hide()
             self.grainPreview.hide()

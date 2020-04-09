@@ -22,11 +22,11 @@ class PropellantManager(QObject):
         try:
             propList = loadFile(getConfigPath() + 'propellants.yaml', fileTypes.PROPELLANTS)
             for propDict in propList:
-                newProp = motorlib.propellant.Propellant()
+                newProp = motorlib.hybrid_propellant.HybridPropellant()
                 newProp.setProperties(propDict)
                 self.propellants.append(newProp)
         except FileNotFoundError:
-            self.propellants = [motorlib.propellant.Propellant(prop) for prop in defaultPropellants()]
+            self.propellants = [motorlib.hybrid_propellant.HybridPropellant(prop) for prop in defaultPropellants()]
             self.savePropellants()
 
     def savePropellants(self):

@@ -26,8 +26,8 @@ def inToM(value):
     return motorlib.units.convert(float(value), 'in', 'm')
 
 def importPropellant(node):
-    propellant = motorlib.propellant.Propellant()
-    propTab = motorlib.propellant.PropellantTab()
+    propellant = motorlib.hybrid_propellant.HybridPropellant()
+    propTab = motorlib.hybrid_propellant.HybridPropellantTab()
     propellant.setProperty('name', node.attrib['Name'])
     ballN = float(node.attrib['BallisticN'])
     ballA = float(node.attrib['BallisticA']) * 1/(6895**ballN)
@@ -56,7 +56,7 @@ class BurnSimImporter(Importer):
         super().__init__(manager, 'BurnSim Motor', 'Loads motor files for BurnSim 3.0', {'.bsx': 'BurnSim Files'})
 
     def doConversion(self, path):
-        motor = motorlib.motor.Motor()
+        motor = motorlib.hybrid_motor.HybridMotor()
         motor.config.setProperties(self.manager.preferences.general.getProperties())
         tree = ET.parse(path)
         root = tree.getroot()

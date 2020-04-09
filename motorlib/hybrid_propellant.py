@@ -1,4 +1,4 @@
-"""HybridFuel submodule that contains the hybrid fuel class."""
+"""HybridPropellant submodule that contains the hybrid fuel class."""
 
 from .properties import PropertyCollection, FloatProperty, StringProperty, TabularProperty
 from .simResult import SimAlert, SimAlertLevel, SimAlertType
@@ -6,28 +6,23 @@ from .simResult import SimAlert, SimAlertLevel, SimAlertType
 from thermo.mixture import Mixture
 
 
-class HybridFuelTab(PropertyCollection):
+class HybridPropellantTab(PropertyCollection):
     """Contains the combustion properties of a hybrid fuel."""
     def __init__(self, tabDict=None):
         super().__init__()
         self.props['minPressure'] = FloatProperty('Minimum Pressure', 'Pa', 0, 7e7)
         self.props['maxPressure'] = FloatProperty('Maximum Pressure', 'Pa', 0, 7e7)
-        self.props['a'] = FloatProperty('Burn rate Coefficient', 'm/(s*Pa^n)', 0, 2)
-        self.props['n'] = FloatProperty('Burn rate Exponent', '', -1, 1)
-        self.props['k'] = FloatProperty('Specific Heat Ratio', '', 1+1e-6, 10)
-        self.props['t'] = FloatProperty('Combustion Temperature', 'K', 0, 10000)
-        self.props['m'] = FloatProperty('Exhaust Molar Mass', 'g/mol', 1e-6, 100)
         if tabDict is not None:
             self.setProperties(tabDict)
 
 
-class HybridFuel(PropertyCollection):
+class HybridPropellant(PropertyCollection):
     """Contains the physical and thermodynamic properties of a hybrid fuel."""
     def __init__(self, propDict=None):
         super().__init__()
         self.props['name'] = StringProperty('Name')
         self.props['density'] = FloatProperty('Density', 'kg/m^3', 0, 10000)
-        self.props['tabs'] = TabularProperty('Properties', HybridFuelTab)
+        self.props['tabs'] = TabularProperty('Properties', HybridPropellantTab)
         if propDict is not None:
             self.setProperties(propDict)
 

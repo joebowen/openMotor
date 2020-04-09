@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import pyqtSignal
 
-import motorlib.propellant
+import motorlib.hybrid_propellant
 
 from ..views.PropMenu_ui import Ui_PropellantDialog
 
@@ -52,9 +52,9 @@ class PropellantMenu(QDialog):
             while propName + " " + str(propNumber) in self.manager.getNames():
                 propNumber += 1
             propName = propName + " " + str(propNumber)
-        newProp = motorlib.propellant.Propellant()
+        newProp = motorlib.hybrid_propellant.HybridPropellant()
         newProp.setProperty('name', propName)
-        newPropTab = motorlib.propellant.PropellantTab()
+        newPropTab = motorlib.hybrid_propellant.HybridPropellantTab()
         newProp.props['tabs'].addTab(newPropTab)
         self.manager.propellants.append(newProp)
         self.setupPropList()

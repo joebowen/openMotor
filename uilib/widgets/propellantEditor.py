@@ -1,4 +1,4 @@
-from motorlib.propellant import Propellant
+from motorlib.hybrid_propellant import HybridPropellant
 from .collectionEditor import CollectionEditor
 from .propellantPreviewWidget import PropellantPreviewWidget
 
@@ -19,7 +19,7 @@ class PropellantEditor(CollectionEditor):
         self.propellantPreview.setPreferences(self.preferences)
 
     def propertyUpdate(self):
-        previewProp = Propellant(self.getProperties())
+        previewProp = HybridPropellant(self.getProperties())
         self.propellantPreview.loadPropellant(previewProp)
 
     def loadProperties(self, obj):
