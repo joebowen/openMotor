@@ -374,9 +374,13 @@ class N2OTank:
         self.prev_tank_propellant_contents_mass = self.tank_propellant_contents_mass
 
         if self.tank_propellant_contents_mass < 0:
+            print('self.tank_propellant_contents_mass < 0')
             mass_flows = 0
 
+        print(f'tank_pressure (bar): {self.tank_pressure}')
+
         if self.tank_pressure < chamber_pressure_bar:
+            print('self.tank_pressure < chamber_pressure_bar')
             mass_flows = 0
 
         return mass_flows

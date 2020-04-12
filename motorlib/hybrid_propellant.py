@@ -23,35 +23,35 @@ class HybridPropellant(PropertyCollection):
         self.props['name'] = StringProperty('Name')
         self.props['density'] = FloatProperty('Density', 'kg/m^3', 0, 10000)
         self.props['idealOxiFuelRatio'] = FloatProperty('Ratio', '', 0, 100)
+        self.props['flameTemp'] = FloatProperty('Adiabatic Flame Temp', 'K', 0, 10000)
         self.props['tabs'] = TabularProperty('Properties', HybridPropellantTab)
         if propDict is not None:
             self.setProperties(propDict)
 
     def getCStar(self, pressure):
         """Returns the propellant's characteristic velocity."""
-        temp = self.getCombustionTemp(pressure)
-        gamma = self.getCombustionGamma(pressure, temp)
-        molarMass = self.getMolarMass(pressure, temp)
+        temp = self.getCombustionTemp()
+        gamma = self.getCombustionGamma(pressure)
+        molarMass = self.getMolarMass(pressure)
 
         gasConst = 8314
         num = (gamma * gasConst / molarMass * temp)**0.5
         denom = gamma * ((2 / (gamma + 1))**((gamma + 1) / (gamma - 1)))**0.5
         return num / denom
 
-    def getMolarMass(self, pressure, temp):
-        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=temp, P=pressure)
+    def getMolarMass(self, pressure):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
         return mixture.MW
 
-    def getCombustionTemp(self, pressure):
-        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=3000, P=pressure)
-        return mixture.T
+    def getCombustionTemp(self):
+        return self.getProperty('flameTemp')
 
     def getGasConstant(self, pressure):
-        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=3000, P=pressure)
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
         return mixture.R_specific
 
-    def getCombustionGamma(self, pressure, temp):
-        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=temp, P=pressure)
+    def getCombustionGamma(self, pressure):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
         return mixture.Cpg / mixture.Cvg
 
     def getMinimumValidPressure(self):

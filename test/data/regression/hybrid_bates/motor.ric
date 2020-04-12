@@ -6,14 +6,14 @@ data:
     burnoutThrustThres: 0.1
     burnoutWebThres: 0.00025400050800101603
     igniterPressure: 1034250.0000000001
-    injectorDiameter: 1.0
+    injectorDiameter: 0.001
     injectorK2Coefficient: 2.0
     mapDim: 750
     maxMassFlux: 1406.4697609001405
     maxPressure: 10342500.000000002
     minPortThroat: 2.0
     numOfInjectors: 1.0
-    postCombustionVol: 0.2
+    postCombustionVol: 0.0002
     tankPressure: 3447000.0
     tankUllage: 10.0
     tankVolume: 0.0002704
@@ -37,6 +37,7 @@ data:
     throatLength: 0.012573025146050293
   propellant:
     density: 1071.2120750789568
+    flameTemp: 3000
     idealOxiFuelRatio: 4.83
     name: ABS Hybrid Fuel
     tabs:
