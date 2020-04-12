@@ -1,23 +1,34 @@
+### APCP
+#real: [
+#  test/real/p9100/test.yaml,
+#  test/real/o3100/test.yaml,
+#  test/real/o3800/test.yaml,
+#  test/real/n2950/test.yaml
+#]
+#
+#regression: [
+#  test/regression/simple/test.yaml,
+#  test/regression/moon/test.yaml,
+#  test/regression/tiny/test.yaml,
+#  test/regression/endburner/test.yaml,
+#  test/regression/tabular/test.yaml,
+#  test/regression/inhibited/test.yaml,
+#  test/regression/c/test.yaml,
+#  test/regression/d/test.yaml,
+#  test/regression/x/test.yaml,
+#  test/regression/rodtube/test.yaml,
+#  test/regression/custom/test.yaml,
+#  test/regression/star/test.yaml,
+#  test/regression/nozzleErosion/test.yaml,
+#  test/regression/nozzleSlag/test.yaml
+#]
+
+### Hybrid
 real: [
-  data/real/p9100/test.yaml,
-  data/real/o3100/test.yaml,
-  data/real/o3800/test.yaml,
-  data/real/n2950/test.yaml
+  test/data/real/hybrid_abs/test.yaml,
 ]
 
 regression: [
-  data/regression/simple/test.yaml,
-  data/regression/moon/test.yaml,
-  data/regression/tiny/test.yaml,
-  data/regression/endburner/test.yaml,
-  data/regression/tabular/test.yaml,
-  data/regression/inhibited/test.yaml,
-  data/regression/c/test.yaml,
-  data/regression/d/test.yaml,
-  data/regression/x/test.yaml,
-  data/regression/rodtube/test.yaml,
-  data/regression/custom/test.yaml,
-  data/regression/star/test.yaml,
-  data/regression/nozzleErosion/test.yaml,
-  data/regression/nozzleSlag/test.yaml
+  test/data/regression/hybrid_bates/test.yaml
 ]
+

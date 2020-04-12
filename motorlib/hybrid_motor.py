@@ -33,10 +33,12 @@ class HybridMotorConfig(PropertyCollection):
         self.props['burnoutThrustThres'] = FloatProperty('Thrust Burnout Threshold', '%', 0.01, 10)
         self.props['timestep'] = FloatProperty('Simulation Timestep', 's', 0.0001, 0.1)
         self.props['ambPressure'] = FloatProperty('Ambient Pressure', 'Pa', 0.0001, 102000)
+        self.props['ambDensity'] = FloatProperty('Ambient Density', 'kg/m^3', 0.0001, 102000)
         self.props['igniterPressure'] = FloatProperty('Igniter Pressure', 'Pa', 0, 1e7)
         self.props['mapDim'] = IntProperty('Grain Map Dimension', '', 250, 2000)
         # Motor Design
-        self.props['postCombustionVol'] = FloatProperty('Post Combustion Volume', 'L', 0, 1)
+        self.props['postCombustionVol'] = FloatProperty('Post Combustion Chamber Volume', 'L', 0, 1)
+        self.props['initialCombustionVol'] = FloatProperty('Initial Combustion Chamber Volume', 'm^3', 0, 100)
 
 
 class HybridMotor():
@@ -50,10 +52,10 @@ class HybridMotor():
         self.nozzle = Nozzle()
         self.config = HybridMotorConfig()
 
-        self.massInChamber = 0
-
         if propDict is not None:
             self.applyDict(propDict)
+
+        self.massInChamber = self.config.getProperty("initialCombustionVol") * self.config.getProperty("ambDensity")
 
         self.tank = N2OTank(
             delta_time=self.config.getProperty("timestep"),
@@ -107,9 +109,10 @@ class HybridMotor():
         return massOutNozzle
 
     def calcIdealPressure(self, regDepth, dThroat, lastPressure, addedMass):
-        massOutNozzle = self.calcMassOutNozzle(dThroat, lastPressure)
+        if addedMass:   # There won't be any massOutNozzle if the N2O isn't flowing
+            massOutNozzle = self.calcMassOutNozzle(dThroat, lastPressure)
 
-        self.massInChamber += addedMass - massOutNozzle
+            self.massInChamber += addedMass - massOutNozzle
 
         gWithReg = zip(self.grains, regDepth)
         perGrain = [gr.getCoreVolumeRegression(reg) for gr, reg in gWithReg]
@@ -218,7 +221,10 @@ class HybridMotor():
         # At t = 0, the motor has ignited
         simRes.channels['time'].addData(0)
         igniterPres = self.config.getProperty('igniterPressure')
-        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, igniterPres, 0))
+
+        n2oMassFlow = self.tank.get_mass_flow_per_iteration(igniterPres)
+
+        simRes.channels['pressure'].addData(self.calcIdealPressure(perGrainReg, 0, igniterPres, n2oMassFlow))
         simRes.channels['force'].addData(0)
         simRes.channels['mass'].addData([grain.getVolumeAtRegression(0) * density for grain in self.grains])
         simRes.channels['massFlow'].addData([0 for grain in self.grains])

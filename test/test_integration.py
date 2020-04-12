@@ -4,7 +4,7 @@ import matplotlib
 import yaml
 import warnings
 
-import motorlib.apcp_motor
+import motorlib.hybrid_motor
 from uilib.fileIO import loadFile, fileTypes
 
 separator = '-' * 65
@@ -95,7 +95,7 @@ if len(sys.argv) > 1:
         filterCategory = sys.argv[1]
         print("Filtering to category '" + filterCategory + "'")
 print(separator)
-with open('data/tests.yaml', 'r') as readLocation:
+with open('test/data/tests.yaml', 'r') as readLocation:
     fileData = yaml.load(readLocation)
     for category in fileData.keys():
         if filterCategory is None or category == filterCategory:

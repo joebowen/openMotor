@@ -22,6 +22,7 @@ class HybridPropellant(PropertyCollection):
         super().__init__()
         self.props['name'] = StringProperty('Name')
         self.props['density'] = FloatProperty('Density', 'kg/m^3', 0, 10000)
+        self.props['idealOxiFuelRatio'] = FloatProperty('Ratio', '', 0, 100)
         self.props['tabs'] = TabularProperty('Properties', HybridPropellantTab)
         if propDict is not None:
             self.setProperties(propDict)

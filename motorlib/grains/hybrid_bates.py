@@ -17,6 +17,10 @@ class HybridBatesGrain(PerforatedGrain):
     def __init__(self):
         super().__init__()
         self.props['coreDiameter'] = FloatProperty('Core Diameter', 'm', 0, 1)
+        self.props['iterPrecision'] = FloatProperty('iterPrecision', '', 0, 1)
+        self.props['a'] = FloatProperty('a', 'm^2/kg', 0, 1)
+        self.props['n'] = FloatProperty('n', '', 0, 1)
+        self.props['m'] = FloatProperty('m', '', -1, 1)
 
     def simulationSetup(self, config):
         self.wallWeb = (self.props['diameter'].getValue() - self.props['coreDiameter'].getValue()) / 2
@@ -97,7 +101,8 @@ class HybridBatesGrain(PerforatedGrain):
 
         avgTotalMassFlowRate = self.getAvgFuelMassFlowRate(density, avgPortSurfaceArea, prevAvgTotalMassFlux)
 
-        oxiFuelRatio = n2oMassFlow / avgTotalMassFlowRate
+        if avgTotalMassFlowRate:
+            oxiFuelRatio = n2oMassFlow / avgTotalMassFlowRate
 
         # TODO: something in here to compare the ideal to the actual ratios and figure out how much oxi is left...
 

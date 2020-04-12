@@ -1,0 +1,21 @@
+motor: test/data/real/hybrid_abs/motor.ric
+name: Hybrid ABS 2in
+data:
+  real:
+    curves: data/real/hybrid_abs/223.csv
+    stats:
+      averageThrust: 2950
+      isp: 224
+      burnTime: 3.75
+      propMass: 5.865
+  regression:
+    - version: 0.4.0
+      stats:
+        averageThrust: 2945
+        isp: 206.512
+        burnTime: 3.81
+        propMass: 5.585
+      alerts: [
+                'Initial port/throat ratio of 1.713 was less than 2.0',
+                'Peak mass flux exceeded configured limit'
+              ]
