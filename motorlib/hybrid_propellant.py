@@ -50,6 +50,14 @@ class HybridPropellant(PropertyCollection):
         mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
         return mixture.R_specific
 
+    def getGasDensity(self, pressure):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
+        return mixture.rhog
+
+    def getIsentropicExpansion(self, pressure):
+        mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
+        return mixture.isentropic_exponent
+
     def getCombustionGamma(self, pressure):
         mixture = Mixture(['n2', 'h2o', 'co2'], zs=[.599, .224, .178], T=self.getProperty('flameTemp'), P=pressure)
         return mixture.Cpg / mixture.Cvg

@@ -74,9 +74,9 @@ def runTests(path):
         fileData = yaml.load(readLocation)
         print("Running tests for '" + fileData['name'] + "'")
         simRes = runSim(fileData['motor'])
-        print(f'simRes')
-        for chan in simRes.channels:
-            print(f'{simRes.channels[chan].name}: {simRes.channels[chan].data}')
+        # print(f'simRes')
+        # for chan in simRes.channels:
+        #     print(f'{simRes.channels[chan].name}: {simRes.channels[chan].data}')
 
         if 'real' in fileData['data'].keys():
             print('Compared to real data:')

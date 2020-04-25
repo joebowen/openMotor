@@ -2,10 +2,10 @@ motor: test/data/regression/hybrid_bates/motor.ric
 name: Hybrid Bates
 data:
   regression:
-    - version: 0.4.0
+    - version: 0.0.1
       stats:
-        averageThrust: 56
-        isp: 198.251
-        burnTime: 3.96
-        propMass: 0.1148
+        averageThrust: 93788.146
+        isp: 30912.039
+        burnTime: 1.24
+        propMass: 0.387
       alerts: []
